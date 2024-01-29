@@ -33,13 +33,13 @@ export const Checklist: React.FC<ChecklistPageInterface> = ({ checklistDialogSta
   const handleEditChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>, checklistItem: ChecklistItem) => {
     // OPENS CHECKLIST DIALOG (UPDATE)
     event.stopPropagation();
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.EDIT, checklistItem});
+    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.EDIT, checklistItem, checklistLength: checklistData.length});
   }
 
   const handleDeleteChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>) => {
     // OPENS CHECKLIST DIALOG (CONFIRMATION FOR DELETION)
     event.stopPropagation();
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.DELETE, checklistItem: null});
+    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.DELETE, checklistItem: null, checklistLength: checklistData.length});
   }
   
   return (

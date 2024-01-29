@@ -85,10 +85,9 @@ export const ColorPicker: React.FC<ColorPickerComponentInterface> = ({ actionTyp
             {colors.map((color, i) => {
                 return (
                   <MenuItem value={color}>
-                    <div style={{ display: 'flex', flex: 1 }}>
-                      <div style={{ width: '100%', height: '20px', background: color, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: '800'}}>
-                        <Typography variant='subtitle2' sx={{color: 'fff', fontWeight: 400}}>{color}</Typography>
-                      </div>
+                    <div className='container-menu-item-color-picker'>
+                      {/* IN-LINE CSS REQUIRED FOR DYNAMIC BACKGROUND COLOR RENDERING */}
+                      <div className='div-menu-item-color-picker' style={{ background: color }}></div>
                     </div>
                   </MenuItem>
                 )

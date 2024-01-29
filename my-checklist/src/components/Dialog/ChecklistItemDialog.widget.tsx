@@ -8,12 +8,18 @@ import {
   DialogContentText,
   DialogProps, 
   DialogTitle,
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
-import { ChecklistDialogState, ChecklistItem, CheckListDialogActionEnum, CheckListDialogActionType, Status, StatusEnum } from '../../types';
-import { ColorPicker, Colors } from '../';
-import { Stack } from '@mui/system';
+import { Box, Stack } from '@mui/system';
+import { ChecklistDialogState, ChecklistItem, CheckListDialogActionEnum, CheckListDialogActionType, Colors, Status, StatusEnum } from '../../types';
+import { colors, defaultColor } from '../../utils';
+import './ChecklistItemDialog.css';
+import { AddChecklistAPI } from '../../middleware';
 
 interface ChecklistDialogComponentInterface {
   checklistDialogState: ChecklistDialogState;
@@ -22,23 +28,22 @@ interface ChecklistDialogComponentInterface {
     action: CheckListDialogActionType | null,
     status: Status,
   ) => void;
+  getAllChecklist: () => void;
 }
 
-export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = ({ checklistDialogState, isLoading, showFeedbackMessage }) => {
+export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = ({ checklistDialogState, isLoading, showFeedbackMessage, getAllChecklist }) => {
 
-  const { checklistDialog, setChecklistDialog } = checklistDialogState;
   const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper');
   const descriptionElementRef = React.useRef<HTMLElement>(null);
-  // const [tags, setTags] = React.useState<string>('due-date,payment,bills');
+  const { checklistDialog, setChecklistDialog } = checklistDialogState;
   const { isOpen, actionType } = checklistDialog;
   
-  // const checklistItem: ChecklistItem | null = checklistDialog.checklistItem;
   const [newChecklistItem, setNewChecklistItem] = React.useState<ChecklistItem | null>(null);
-  const [checklistItemName, setChecklistItemName] = React.useState<string | null>('');
+  const [checklistItemName, setChecklistItemName] = React.useState<string>('');
   const [checklistItemRemarks, setChecklistItemRemarks] = React.useState<string | null>('');
   const [checklistItemTags, setChecklistItemTags] = React.useState<string | null>('');
+  const [checklistBgColor, setChecklistBgColor] = React.useState<Colors>(defaultColor);
   const [inputTag, setInputTag] = React.useState<string>('');
-  const [checklistBgColor, setChecklistBgColor] = React.useState<Colors | null>(null);
 
   const renderDialogTitle = () => {
     switch(actionType) {
@@ -54,13 +59,30 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
   }
 
   const handleClose = () => {
-    setChecklistDialog({isOpen: false, actionType: null, checklistItem: null});
+    setChecklistDialog({isOpen: false, actionType: null, checklistItem: null, checklistLength: 0});
   }
 
   const handleSubmit = () => {
     // CALL UPDATE API HERE
-    handleClose();
+    if (checklistDialog.actionType === CheckListDialogActionEnum.ADD) {
+      const payload: ChecklistItem = {
+        priority: checklistDialogState.checklistDialog.checklistLength,
+        name: checklistItemName,
+        remarks: checklistItemRemarks,
+        backgroundColor: checklistBgColor,
+        tags: checklistItemTags
+      }
+      AddChecklistAPI(
+        null,
+        () => showFeedbackMessage(CheckListDialogActionEnum.ADD, StatusEnum.SUCCESS),
+        () => showFeedbackMessage(CheckListDialogActionEnum.ADD, StatusEnum.FAILED),
+        () => getAllChecklist(),
+        payload,
+      );
+    }
     //IF Successs
+    
+    handleClose();
     showFeedbackMessage(checklistDialog.actionType, StatusEnum.SUCCESS);
   }
 
@@ -80,7 +102,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
             ref={descriptionElementRef}
             tabIndex={-1}
           >
-            <Typography variant='body1'>Are you sure you want to delete this item?</Typography>
+            <Typography variant='body1'>Are you sure you want to delete this checklist item?</Typography>
           </DialogContentText>
         </DialogContent>
       </React.Fragment>
@@ -105,17 +127,16 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
     setInputTag('');
   }
 
-  const colorPickerComponentProps = {
-    hex: checklistBgColor || checklistDialog.checklistItem?.backgroundColor as Colors,
-    actionType: checklistDialog.actionType as CheckListDialogActionEnum,
+  const handleChange = (event: SelectChangeEvent) => {
+    setChecklistBgColor(event.target.value as string as Colors);
   };
-
-  const _renderUpdateContent = () => {
+  
+  const _renderChecklistItemContent = () => {
     return (
       <React.Fragment>
         <div>
-          <div style={{ marginBottom: '12px', display: 'flex' }}>
-            <div style={{ flex: 1, padding: '0px 4px' }}>
+          <div className='container-checklist-dialog-row-1'>
+            <div className='txt-checklist-name'>
               <TextField 
                 id="outlined-basic" 
                 label='Name' 
@@ -126,11 +147,34 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
                 fullWidth 
               />
             </div>
-            <div style={{ flex: 1, padding: '0px 4px'}}>
-              <ColorPicker {...colorPickerComponentProps} />
+            <div className='custom-sel-color-picker'>
+              <React.Fragment>
+                <Box sx={{ minWidth: 120 }}>
+                  <FormControl fullWidth>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={checklistBgColor as Colors}
+                      onChange={handleChange}
+                      size='small'
+                    >
+                      {colors.map((color, i) => {
+                          return (
+                            <MenuItem value={color}>
+                              <div className='container-menu-item-color-picker'>
+                                {/* IN-LINE CSS REQUIRED FOR DYNAMIC BACKGROUND COLOR RENDERING */}
+                                <div className='div-menu-item-color-picker' style={{ background: color }}></div>
+                              </div>
+                            </MenuItem>
+                          )
+                      })}
+                    </Select>
+                  </FormControl>
+                </Box>
+              </React.Fragment>
             </div>
           </div>
-          <div style={{ marginBottom: '12px', padding: '0px 4px' }}>
+          <div className='container-checklist-dialog-row-2'>
             <TextField
               id="outlined-multiline-static"
               label="Remarks"
@@ -141,8 +185,8 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
               onChange={(e) => setChecklistItemRemarks(e.target.value)}
             />
           </div>
-          <div style={{ display: 'flex', marginBottom: '12px', }}>
-            <div style={{ flex: 4, padding: '0px 4px' }}>
+          <div className='container-checklist-dialog-row-3'>
+            <div className='txt-checklist-tag'>
               <TextField
                 id="outlined-basic"
                 label="Tags"
@@ -154,13 +198,13 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
                 fullWidth
               />
             </div>
-            <div style={{ display: 'flex', flex: 1, justifyContent: 'flex-end', padding: '0px 4px',}}>
+            <div className='btn-checklist-tag-add'>
               <Button size="medium" variant='contained' onClick={addTag}>Add tag</Button>
             </div>
           </div>
           {checklistItemTags && (
-            <div style={{ display: 'flex', marginBottom: '12px', padding: '0px 4px'}}>
-              <div style={{flex: 1, border: 'solid 1px #CACFD2', borderRadius: '4px', padding: '8px'}}>
+            <div className='container-checklist-tag-list'>
+              <div className='container-checklist-tag-list-box'>
                 <Stack direction="row" spacing={1}>
                   {checklistItemTags.split(',').map((tag, i) => {
                     return (
@@ -182,19 +226,18 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
     } else {
       return (
         <React.Fragment>
-          <DialogContent dividers={scroll === 'paper'}>
+          <DialogContent dividers>
             <DialogContentText
               id="scroll-dialog-description"
               ref={descriptionElementRef}
               tabIndex={-1}
             >
-              {_renderUpdateContent()}
+              {_renderChecklistItemContent()}
             </DialogContentText>
           </DialogContent>
         </React.Fragment>
       );
     }
-    return null;
   }
 
   React.useEffect(() => {
@@ -210,7 +253,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
       setChecklistItemName('');
       setChecklistItemRemarks('');
       setChecklistItemTags('');
-      setChecklistBgColor(null);
+      setChecklistBgColor(defaultColor);
     }
 
     if(checklistDialog.actionType === CheckListDialogActionEnum.EDIT && checklistDialog.checklistItem) {
@@ -221,7 +264,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
       setChecklistItemTags(checklistDialog.checklistItem.tags);
       setChecklistBgColor(checklistDialog.checklistItem.backgroundColor as Colors);
     }
-  }, [isOpen]);
+  }, [isOpen, checklistDialog.actionType, checklistDialog.checklistItem]);
 
   return (
     <React.Fragment>

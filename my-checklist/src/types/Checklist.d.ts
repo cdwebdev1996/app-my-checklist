@@ -1,5 +1,5 @@
 export interface ChecklistItem {
-  id: number;
+  id?: number;
   priority: number;
   name: string;
   remarks: string | null;
