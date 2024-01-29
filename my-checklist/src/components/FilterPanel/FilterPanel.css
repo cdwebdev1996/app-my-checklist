@@ -1,0 +1,24 @@
+.container-checklist-action-overview {
+  display: flex;
+  align-items: flex-end;
+  padding: 16px 0px;
+}
+
+.txt-checklist-count {
+  display: flex;
+  flex: 3; 
+  justify-content: flex-start;
+}
+
+.btn-checklist-add {
+  display: flex; 
+  flex: 1; 
+  justify-content: flex-end;
+}
+
+.container-filter-panel {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  margin-bottom: 24px;
+}

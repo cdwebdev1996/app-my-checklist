@@ -1,0 +1,19 @@
+.container-color-picker {
+  display: flex; 
+  flex: 1; 
+  align-items: center; 
+  border: solid 1px #CACFD2; 
+  border-radius: 4px; padding: 8px 14px; 
+  height: 22.5px;
+  cursor: pointer;
+}
+
+.container-color-picker:hover {
+  display: flex; 
+  flex: 1; 
+  align-items: center; 
+  border: solid 1px #46505A; 
+  border-radius: 4px; padding: 8px 14px; 
+  height: 22.5px;
+  cursor: pointer;
+}
