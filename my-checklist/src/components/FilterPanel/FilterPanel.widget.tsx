@@ -18,7 +18,7 @@ import {
   OutlinedInput,
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
-import { CheckListDialogActionEnum, ChecklistDialogState } from '../../types';
+import { CheckListDialogActionEnum, ChecklistDialogState, ChecklistItem } from '../../types';
 import './FilterPanel.css';
 
 
@@ -48,11 +48,12 @@ const ITEM_HEIGHT = 48;
   ];
 
 interface FilterPanelComponentInterface {
+  checklistData: Array<ChecklistItem>;
   checklistDialogState: ChecklistDialogState;
   isLoading: boolean;
 }
 
-export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ isLoading, checklistDialogState }) => {
+export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ checklistData, checklistDialogState, isLoading }) => {
 
   const { checklistDialog, setChecklistDialog } = checklistDialogState;
   const [personName, setPersonName] = React.useState<string[]>([]);
@@ -69,23 +70,11 @@ export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ isLoading
   };
 
   const handleAddChecklistItem = () => {
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.ADD, checklistItem: null});
+    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.ADD, checklistItem: null, checklistLength: checklistData.length});
   }
 
   return (
     <React.Fragment>
-      <div className="container-checklist-action-overview">
-        <div className='txt-checklist-count'>
-          {isLoading ? (
-            <Skeleton variant="rectangular" width={175} height={32} />
-          ) : <Typography variant='h6'>Today's tasks: (4)</Typography>}
-        </div>
-        <div className='btn-checklist-add'>
-          <Button component="label" size='small' variant="contained" startIcon={<AddCircle />} onClick={handleAddChecklistItem}>
-            Add item
-          </Button>
-        </div>
-      </div>
       <div className='container-filter-panel'>
         <Card variant="outlined" sx={{ width: '100%' }}>
           <Box sx={{ p: 2 }}>
@@ -125,6 +114,18 @@ export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ isLoading
             </FormControl>
           </Box>
         </Card>
+      </div>
+      <div className="container-checklist-action-overview">
+        <div className='txt-checklist-count'>
+          {isLoading ? (
+            <Skeleton variant="rectangular" width={175} height={32} />
+          ) : <Typography variant='h6'>{`Today's tasks: (${checklistData.length || 0})`}</Typography>}
+        </div>
+        <div className='btn-checklist-add'>
+          <Button component="label" size='small' variant="contained" startIcon={<AddCircle />} onClick={handleAddChecklistItem}>
+            Add item
+          </Button>
+        </div>
       </div>
     </React.Fragment>
   )

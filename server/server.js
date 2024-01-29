@@ -2,17 +2,12 @@
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const express = require('express');
+const ENVIRONMENT_VARIABLES = require('./config/dotenv.config');
 
 const app = express();
+const context = ENVIRONMENT_VARIABLES.context;
+const env = ENVIRONMENT_VARIABLES.env || 'dev';
 const port = process.env.PORT || 5000;
-
-const apiContext = {
-  servers: {
-    production: "/api/v1",
-    test: "/test/api/v1",
-    development: "/dev/api/v1"
-  }
-};
 
 //ROUTES
 const checklists = require('./routes/checklists.api');
@@ -26,16 +21,10 @@ app.use((req, res, next) => {
   next();
 });
 
-//API CONSUMPTION BASED ON NODE ENVIRONMENT
-const env = process.env.NODE_ENV; 
-if (env === 'production') {
-  app.use(`${apiContext.servers.production}/checklist`, checklists);
-} else if (env === 'test') {
-  app.use(`${apiContext.servers.test}/checklist`, checklists);
-} else {
-  app.use(`${apiContext.servers.development}/checklist`, checklists);
-}
+app.use(`/${env}${context}`, checklists);
 
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  console.log(`Server running on PORT = ${port}`);
+  console.log(`Server running on ${env.toUpperCase()} ENVIRONMENT`);
+  console.log(`All rights reserved`);
 });
