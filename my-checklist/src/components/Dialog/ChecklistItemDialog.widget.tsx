@@ -16,28 +16,28 @@ import {
   Typography,
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
-import { ChecklistDialogState, ChecklistItem, CheckListDialogActionEnum, CheckListDialogActionType, Colors, Status, StatusEnum } from '../../types';
+import {
+  ActionTypes,
+  ChecklistItem,
+  Colors,
+  FeedbackStatus,
+} from '../../types';
 import { colors, defaultColor } from '../../utils';
 import './ChecklistItemDialog.css';
 import { AddChecklistAPI } from '../../middleware';
+import { AppContext } from '../../context';
 
-interface ChecklistDialogComponentInterface {
-  checklistDialogState: ChecklistDialogState;
-  isLoading: boolean;
-  showFeedbackMessage: (
-    action: CheckListDialogActionType | null,
-    status: Status,
-  ) => void;
-  getAllChecklist: () => void;
-}
-
-export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = ({ checklistDialogState, isLoading, showFeedbackMessage, getAllChecklist }) => {
-
-  const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper');
-  const descriptionElementRef = React.useRef<HTMLElement>(null);
-  const { checklistDialog, setChecklistDialog } = checklistDialogState;
-  const { isOpen, actionType } = checklistDialog;
+export const CheckListItemDialog: React.FC = () => {
+  const {
+    checklistDialog,
+    getAllChecklist,
+    setChecklistDialog,
+    showFeedbackMessage,
+  } = React.useContext(AppContext);
   
+  // const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper');
+  const descriptionElementRef = React.useRef<HTMLElement>(null);
+  const { isOpen, actionType } = checklistDialog;
   const [newChecklistItem, setNewChecklistItem] = React.useState<ChecklistItem | null>(null);
   const [checklistItemName, setChecklistItemName] = React.useState<string>('');
   const [checklistItemRemarks, setChecklistItemRemarks] = React.useState<string | null>('');
@@ -47,11 +47,11 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
 
   const renderDialogTitle = () => {
     switch(actionType) {
-      case CheckListDialogActionEnum.ADD:
+      case ActionTypes.ADD:
         return 'Create Checklist Item';
-      case CheckListDialogActionEnum.EDIT:
+      case ActionTypes.EDIT:
         return 'Update Checklist Item';
-      case CheckListDialogActionEnum.DELETE:
+      case ActionTypes.DELETE:
         return 'Confirm Delete Action';
       default:
         return null;
@@ -64,36 +64,38 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
 
   const handleSubmit = () => {
     // CALL UPDATE API HERE
-    if (checklistDialog.actionType === CheckListDialogActionEnum.ADD) {
+    if (checklistDialog.actionType === ActionTypes.ADD) {
       const payload: ChecklistItem = {
-        priority: checklistDialogState.checklistDialog.checklistLength,
+        priority: checklistDialog.checklistLength,
         name: checklistItemName,
         remarks: checklistItemRemarks,
         backgroundColor: checklistBgColor,
         tags: checklistItemTags
       }
       AddChecklistAPI(
-        null,
-        () => showFeedbackMessage(CheckListDialogActionEnum.ADD, StatusEnum.SUCCESS),
-        () => showFeedbackMessage(CheckListDialogActionEnum.ADD, StatusEnum.FAILED),
-        () => getAllChecklist(),
         payload,
+        () => {
+          handleClose();
+          showFeedbackMessage(ActionTypes.ADD, FeedbackStatus.SUCCESS)
+        },
+        () => {
+          handleClose();
+          showFeedbackMessage(ActionTypes.ADD, FeedbackStatus.ERROR)
+        },
+        () => getAllChecklist(),
       );
     }
-    //IF Successs
-    
-    handleClose();
-    showFeedbackMessage(checklistDialog.actionType, StatusEnum.SUCCESS);
+    showFeedbackMessage(checklistDialog.actionType, FeedbackStatus.SUCCESS);
   }
 
   const handleDialogBackdropClick: DialogProps["onClose"] = (event, reason) => {
     // PREVENTS DIALOG FROM CLOSING UPON CLICKING ON THE BACKDROP AREA
     if (reason && reason === "backdropClick") 
-        return;
-        handleClose();
+      return;
+    handleClose();
   }
 
-  const renderDeleteConfirmationContent = () => {
+  const _renderDeleteConfirmationContent = () => {
     return (
       <React.Fragment>
         <DialogContent>
@@ -158,12 +160,11 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
                       onChange={handleChange}
                       size='small'
                     >
-                      {colors.map((color, i) => {
+                      {colors.map((color: string, index: number) => {
                           return (
-                            <MenuItem value={color}>
+                            <MenuItem value={color} key={`${index}-${color}`} sx={{ display: 'block' }}>
                               <div className='container-menu-item-color-picker'>
-                                {/* IN-LINE CSS REQUIRED FOR DYNAMIC BACKGROUND COLOR RENDERING */}
-                                <div className='div-menu-item-color-picker' style={{ background: color }}></div>
+                                <div className='div-menu-item-color-picker' style={{ background: color, width: '100%', color}}>-</div>
                               </div>
                             </MenuItem>
                           )
@@ -195,6 +196,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
                 onChange={e => setInputTag(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' ? addTag() : null}
                 value={inputTag}
+                helperText='Press enter to add tag'
                 fullWidth
               />
             </div>
@@ -221,8 +223,8 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
   }
 
   const renderDialogContent = () => {
-    if (actionType === CheckListDialogActionEnum.DELETE) {
-      return renderDeleteConfirmationContent();
+    if (actionType === ActionTypes.DELETE) {
+      return _renderDeleteConfirmationContent();
     } else {
       return (
         <React.Fragment>
@@ -248,7 +250,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
       }
     }
 
-    if (checklistDialog.actionType === CheckListDialogActionEnum.ADD) {
+    if (checklistDialog.actionType === ActionTypes.ADD) {
       setNewChecklistItem(null);
       setChecklistItemName('');
       setChecklistItemRemarks('');
@@ -256,7 +258,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
       setChecklistBgColor(defaultColor);
     }
 
-    if(checklistDialog.actionType === CheckListDialogActionEnum.EDIT && checklistDialog.checklistItem) {
+    if(checklistDialog.actionType === ActionTypes.EDIT && checklistDialog.checklistItem) {
       //ASSSIGN VALUES ON RENDER FOR UPDATING
       setNewChecklistItem(checklistDialog.checklistItem);
       setChecklistItemName(checklistDialog.checklistItem.name);
@@ -271,7 +273,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
       <Dialog
         open={isOpen}
         onClose={handleDialogBackdropClick}
-        scroll={scroll}
+        scroll={'paper'}
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
         fullWidth
@@ -286,7 +288,7 @@ export const CheckListItemDialog: React.FC<ChecklistDialogComponentInterface> = 
         <DialogActions>
           <Button onClick={handleClose} variant='outlined'>Cancel</Button>
           <Button onClick={handleSubmit} variant='contained'>
-            {actionType === CheckListDialogActionEnum.DELETE ? 'Confirm' : 'Submit'}
+            {actionType === ActionTypes.DELETE ? 'Confirm' : 'Submit'}
           </Button>
         </DialogActions>
       </Dialog>

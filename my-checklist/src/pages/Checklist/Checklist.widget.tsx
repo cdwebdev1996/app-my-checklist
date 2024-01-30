@@ -11,16 +11,13 @@ import {
   Typography
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
-import { ChecklistDialogState, ChecklistItem, CheckListDialogActionEnum } from '../../types';
+import { ChecklistItem, ActionTypes } from '../../types';
 import './Checklist.css';
+import { AppContext } from '../../context';
 
-interface ChecklistPageInterface {
-  checklistDialogState: ChecklistDialogState;
-  checklistData: Array<ChecklistItem>;
-}
 
-export const Checklist: React.FC<ChecklistPageInterface> = ({ checklistDialogState, checklistData }) => {
-  const { checklistDialog, setChecklistDialog } = checklistDialogState;
+export const Checklist: React.FC = () => {
+  const { checklistData, setChecklistDialog } = React.useContext(AppContext);
   const [expandedChecklistItem, setExpandedChecklistItem] = React.useState<number>(-1);
   
   const handleToggleExpandedItem = (index: number) => {
@@ -33,13 +30,13 @@ export const Checklist: React.FC<ChecklistPageInterface> = ({ checklistDialogSta
   const handleEditChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>, checklistItem: ChecklistItem) => {
     // OPENS CHECKLIST DIALOG (UPDATE)
     event.stopPropagation();
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.EDIT, checklistItem, checklistLength: checklistData.length});
+    setChecklistDialog({isOpen: true, actionType: ActionTypes.EDIT, checklistItem, checklistLength: checklistData.length});
   }
 
   const handleDeleteChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>) => {
     // OPENS CHECKLIST DIALOG (CONFIRMATION FOR DELETION)
     event.stopPropagation();
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.DELETE, checklistItem: null, checklistLength: checklistData.length});
+    setChecklistDialog({isOpen: true, actionType: ActionTypes.DELETE, checklistItem: null, checklistLength: checklistData.length});
   }
   
   return (
@@ -75,9 +72,9 @@ export const Checklist: React.FC<ChecklistPageInterface> = ({ checklistDialogSta
             <AccordionDetails sx={{ padding: '8px 80px 16px' }}>
               {checklist.remarks}
               <Stack direction="row" spacing={1} sx={{ marginTop: '24px' }}>
-                {checklist.tags?.split(',').map((tag, i) => {
+                {checklist.tags?.split(',').map((tag: string, index: number) => {
                   return (
-                    <Chip key={i} label={tag} color="primary" sx={{ margin: '0px 3px'}} />
+                    <Chip key={index} label={tag} color="primary" sx={{ margin: '0px 3px'}} />
                   )
                 })}
               </Stack>

@@ -18,20 +18,20 @@ import {
   OutlinedInput,
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
-import { CheckListDialogActionEnum, ChecklistDialogState, ChecklistItem } from '../../types';
+import { AppContext } from '../../context';
+import { ActionTypes } from '../../types';
 import './FilterPanel.css';
 
-
 const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-        width: 250,
-      },
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
     },
-  };
+  },
+};
 
   //STATIC DATA
   const names: Array<string> = [
@@ -47,16 +47,10 @@ const ITEM_HEIGHT = 48;
     'Kelly Snyder',
   ];
 
-interface FilterPanelComponentInterface {
-  checklistData: Array<ChecklistItem>;
-  checklistDialogState: ChecklistDialogState;
-  isLoading: boolean;
-}
+export const FilterPanel: React.FC = () => {
 
-export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ checklistData, checklistDialogState, isLoading }) => {
-
-  const { checklistDialog, setChecklistDialog } = checklistDialogState;
-  const [personName, setPersonName] = React.useState<string[]>([]);
+  const { checklistData, setChecklistDialog, isLoading } = React.useContext(AppContext);
+  const [ personName, setPersonName ] = React.useState<string[]>([]);
 
   const handleChange = (event: SelectChangeEvent<typeof personName>) => {
     // HANDLES MULTIPLE TAGS SELECTION ACTION FROM THE FILTER CRITERIA PANEL
@@ -70,7 +64,7 @@ export const FilterPanel: React.FC<FilterPanelComponentInterface> = ({ checklist
   };
 
   const handleAddChecklistItem = () => {
-    setChecklistDialog({isOpen: true, actionType: CheckListDialogActionEnum.ADD, checklistItem: null, checklistLength: checklistData.length});
+    setChecklistDialog({isOpen: true, actionType: ActionTypes.ADD, checklistItem: null, checklistLength: checklistData.length});
   }
 
   return (

@@ -5,3 +5,10 @@ export enum HttpMethods {
   PUT = 'PUT',
   DELETE = 'DELETE',
 };
+
+export enum ActionTypes {
+  ADD,
+  DELETE,
+  GET,
+  EDIT
+}

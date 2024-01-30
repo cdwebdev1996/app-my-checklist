@@ -1,15 +1,15 @@
 import { SetStateAction } from 'react';
 import axios from 'axios';
-import { ChecklistItem, HttpMethods } from '../types';
+import { ChecklistItem, HttpMethods, VoidFunctionCallback } from '../types';
 import { API_CONTEXT } from '../config'; 
 
-type Func = (prop?: any) => void;
+
 
 export const GetAllChecklistAPI = (
   setLoader?: null | React.Dispatch<React.SetStateAction<boolean>>, 
-  onSuccess?: null | Func,
-  onError?: null | Func,
-  callBack?: null | Func,
+  onSuccess?: null | ((prop: SetStateAction<ChecklistItem[]>) => void),
+  onError?: null | VoidFunctionCallback,
+  callBack?: null | VoidFunctionCallback,
 ) => {
     axios({
         method: HttpMethods.GET,
@@ -27,7 +27,7 @@ export const GetAllChecklistAPI = (
       // provides a buffer before the loading state ends
       setTimeout(() => {
         setLoader && setLoader(false);
-      }, 700)
+      }, 700);
     });
 }
 
