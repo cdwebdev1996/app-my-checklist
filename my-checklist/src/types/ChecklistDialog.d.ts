@@ -1,31 +1,6 @@
-export type CheckListDialogActionType = 'edit' | 'add' | 'delete' | 'get';
-
-export enum CheckListDialogActionEnum {
-  ADD = 'add',
-  DELETE = 'delete',
-  EDIT = 'edit',
-  GET = 'get'
-}
-
-export type Status = 'success' | 'failed';
-
-export enum StatusEnum {
-  SUCCESS =  'success',
-  FAILED = 'failed',
-}
-
-export interface FeedbackInterface {
-  status: Status;
-}
-
-export interface Feedback {
-  message: string;
-  status: Status;
-}
-
 export interface CheckListDialogInterface {
   isOpen: boolean;
-  actionType: CheckListDialogActionType | null;
+  actionType: ActionTypes | null;
   checklistItem: ChecklistItem | null;
   checklistLength: number;
 }

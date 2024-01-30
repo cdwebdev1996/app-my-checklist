@@ -7,9 +7,9 @@ import { Stack } from '@mui/system';
 export const ChecklistSkeleton: React.FC = () => {
   return (
     <div>
-      {[0, 1, 2].map((skeleton, index) => {
+      {[0, 1, 2].map((skeleton: number | string, index: number) => {
         return (
-          <Accordion>
+          <Accordion key={`${skeleton}-${index}`}>
             <AccordionSummary
               expandIcon={<ExpandMore />}
               aria-controls="panel1-content-skeleton"

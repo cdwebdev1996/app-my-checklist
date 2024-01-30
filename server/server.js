@@ -5,7 +5,7 @@ const express = require('express');
 const ENVIRONMENT_VARIABLES = require('./config/dotenv.config');
 
 const app = express();
-const context = ENVIRONMENT_VARIABLES.context;
+const context = '/api/v1/checklist';
 const env = ENVIRONMENT_VARIABLES.env || 'dev';
 const port = process.env.PORT || 5000;
 

@@ -1,18 +1,14 @@
 import axios from 'axios';
-import { HttpMethods } from '../types';
+import { ChecklistItem, HttpMethods } from '../types';
 import { API_CONTEXT } from '../config'; 
 
-type Func = (prop?: any) => void;
-interface Obj {
-  [key: string]: any
-}
+type VoidFunctionCallback = (prop?: any) => void;
 
 export const AddChecklistAPI = (
-  setLoader?: null | React.Dispatch<React.SetStateAction<boolean>>, 
-  onSuccess?: null | Func,
-  onError?: null | Func,
-  callBack?: null | Func,
-  payload?: null | Obj,
+  payload: ChecklistItem,
+  onSuccess?: null | VoidFunctionCallback,
+  onError?: null | VoidFunctionCallback,
+  callBack?: null | VoidFunctionCallback,
 ) => {
   axios({
     method: HttpMethods.POST,
@@ -20,16 +16,19 @@ export const AddChecklistAPI = (
     data: payload
   })
   .then(response => {
-    setLoader && setLoader(true)
-    onSuccess && onSuccess();
-      // callback(response.data);
+    // add a buffer so to make the feedback appear smooth
+    setTimeout(() => {
+      onSuccess && onSuccess();
+    }, 800);
   })
-  .catch(err => onError && onError(err))
+  .catch(err => {
+    // add a buffer so to make the feedback appear smooth
+    setTimeout(() => {
+      onError && onError()
+    }, 800);
+  })
   .finally(() => {
     callBack && callBack();
-    setTimeout(() => {
-      setLoader && setLoader(false);
-    }, 700)
   });
 };
 
