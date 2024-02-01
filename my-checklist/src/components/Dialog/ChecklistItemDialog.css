@@ -3,6 +3,34 @@
   display: flex;
 }
 
+.container-miu-dialog-content {
+  padding: 16px 24px;
+}
+
+.custom-menu-item-selected {
+  background-color: #141414;
+}
+
+.container-dialog-err {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #E74C3C;
+  color: #fff;
+  padding: 8px 24px;
+  margin-bottom: 20px;
+}
+
+.txt-dialog-err {
+  flex: 3;
+}
+
+.btn-dialog-err-close {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+}
+
 .txt-checklist-name {
   flex: 3;
   padding: 0px 4px;

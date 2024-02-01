@@ -33,7 +33,7 @@ router.post('/add', (req, res) => {
 // UPDATE
 router.patch('/update', (req, res) => {
   const payload = req.body;
-  const id = req.query.id;
+  const id = req.body.id;
   console.log('/update', payload);
 
   const sqlCommand = 'UPDATE `checklist` SET ? WHERE id = ?';

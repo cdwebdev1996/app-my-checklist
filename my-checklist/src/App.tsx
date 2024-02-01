@@ -3,9 +3,9 @@ import { Typography } from '@mui/material';
 import { ThemeProvider } from '@mui/system';
 import { CheckListItemDialog, ChecklistSkeleton, FeedbackAlert, FilterPanel, Header } from './components';
 import { AppContext } from './context';
-import { GetAllChecklistAPI } from './middleware';
 import { Checklist } from './pages';
 import { 
+  APIs,
   ActionTypes,
   ApplicationState, 
   CheckListDialogInterface, 
@@ -13,7 +13,7 @@ import {
   Feedback,
   FeedbackStatus,
 } from './types';
-import { theme } from './utils';
+import { theme, callAPI } from './utils';
 import './App.css';
 
 export const App = () => {
@@ -23,7 +23,6 @@ export const App = () => {
   const [feedback, setFeedback] = React.useState<Feedback>({ action: null, status: null });
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [isFeedbackMessageShown, setIsFeedbackMessageShown] = React.useState<boolean>(false);
-  
 
   const showFeedbackMessage = React.useCallback((action: ActionTypes, status: FeedbackStatus) => {
     setFeedback({
@@ -34,12 +33,7 @@ export const App = () => {
   }, []);
 
   const getAllChecklist = React.useCallback(() => {
-    // api call for /getAll
-    GetAllChecklistAPI(
-      setIsLoading,
-      (data) => setChecklistData(data),
-      () => showFeedbackMessage(ActionTypes.GET, FeedbackStatus.ERROR),
-    );
+    callAPI({apiEndpoint: APIs.GETALL, loader: setIsLoading, onSuccess: setChecklistData, onError: showFeedbackMessage});
   }, [setChecklistData, showFeedbackMessage]);
 
   const applicationState: ApplicationState = {
@@ -47,8 +41,8 @@ export const App = () => {
     checklistDialog,
     feedback,
     isLoading,
-    getAllChecklist,
     isFeedbackMessageShown,
+    getAllChecklist,
     setChecklistData,
     setChecklistDialog,
     setFeedback,

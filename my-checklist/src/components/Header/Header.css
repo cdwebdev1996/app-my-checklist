@@ -1,3 +1,14 @@
 .header {
   margin-bottom: 40px;
 }
+
+.logo-app {
+  width: 7%;
+  margin-right: 25px;
+}
+
+@media only screen and (max-width: 1600px) {
+  .logo-app {
+    width: 9%;
+  }  
+}

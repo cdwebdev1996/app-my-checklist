@@ -27,7 +27,7 @@ export const FeedbackAlert = () => {
 
   React.useEffect(() => {
     isFeedbackMessageShown && setTimeout(() => {
-      // hide feedback message three seconds after rendering
+      // automatically hide feedback message three (3) seconds after rendering
       setIsFeedbackMessageShown(false);
     }, 3800);
   }, [ isFeedbackMessageShown, setIsFeedbackMessageShown]);
@@ -35,7 +35,14 @@ export const FeedbackAlert = () => {
   return (
    <React.Fragment>
       {isFeedbackMessageShown ? (
-        <Alert severity={feedback?.status || FeedbackStatus.ERROR}>
+        <Alert variant='filled' severity={feedback?.status || FeedbackStatus.ERROR} sx={{
+          position: 'fixed',
+          zIndex: 1,
+          top: 0,
+          width: '100%',
+          boxShadow: 'rgba(149, 157, 165, 0.2) 0px 8px 24px',
+          borderRadius: 0,
+        }}>
           <AlertTitle>{feedback?.status?.toUpperCase()}</AlertTitle>
           {renderFeedbackMessage()}
         </Alert>

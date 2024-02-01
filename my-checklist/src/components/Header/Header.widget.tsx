@@ -10,10 +10,11 @@ export const Header: React.FC = () => {
     <React.Fragment>
       <div className='header'>
         <Box
-          sx={{
-            width: '7%',
-            marginRight: '25px'
-          }}
+          // sx={{
+          //   width: '7%',
+          //   marginRight: '25px'
+          // }}
+          className='logo-app'
         >
           <img src={Logo} alt='my-checklist-logo' width='100%' />
         </Box>
