@@ -17,9 +17,9 @@ import { AppContext } from '../../context';
 
 
 export const Checklist: React.FC = () => {
-  const { checklistData, setChecklistDialog } = React.useContext(AppContext);
+  const { cachedData, checklistData, isFiltering, setChecklistDialog } = React.useContext(AppContext);
   const [expandedChecklistItem, setExpandedChecklistItem] = React.useState<number>(-1);
-  
+  const dataSource = isFiltering ? cachedData : checklistData;
   const handleToggleExpandedItem = (index: number) => {
     // THIS LIMITS ACCORDIONS TO HAVE ONE EXPANDED ELEMENT AT A TIME 
     index === expandedChecklistItem
@@ -41,7 +41,7 @@ export const Checklist: React.FC = () => {
   
   return (
     <div className='container-app-checklist'>
-      {checklistData.map((checklist, i) => {
+      {dataSource.map((checklist, i) => {
         return (
           <Accordion
             expanded={i === expandedChecklistItem}

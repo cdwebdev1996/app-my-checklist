@@ -11,7 +11,7 @@ export const ChecklistPresentationService = (
   endpoint: APIs,
   method: HttpMethods,
   setLoader: null | React.Dispatch<React.SetStateAction<boolean>>, 
-  onSuccess: null | ((data?: SetStateAction<ChecklistItem[]>) => void),
+  onSuccess: null | VoidFunctionCallback,
   onError: null | VoidFunctionCallback,
   callBack?: null | VoidFunctionCallback,
   payload?: null | AddOrUpdateRequestBody,
