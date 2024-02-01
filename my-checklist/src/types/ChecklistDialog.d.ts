@@ -1,3 +1,5 @@
+import { ChecklistItem } from './Checklist.d';
+
 export interface CheckListDialogInterface {
   isOpen: boolean;
   actionType: ActionTypes | null;

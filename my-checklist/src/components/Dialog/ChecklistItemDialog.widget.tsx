@@ -9,22 +9,23 @@ import {
   DialogProps, 
   DialogTitle,
   FormControl,
+  IconButton,
   MenuItem,
   Select,
   SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material';
+import { Close } from '@mui/icons-material';
 import { Box, Stack } from '@mui/system';
 import {
+  APIs,
   ActionTypes,
-  ChecklistItem,
   Colors,
   FeedbackStatus,
 } from '../../types';
-import { colors, defaultColor } from '../../utils';
+import { callAPI, colors, defaultColor } from '../../utils';
 import './ChecklistItemDialog.css';
-import { AddChecklistAPI } from '../../middleware';
 import { AppContext } from '../../context';
 
 export const CheckListItemDialog: React.FC = () => {
@@ -35,14 +36,13 @@ export const CheckListItemDialog: React.FC = () => {
     showFeedbackMessage,
   } = React.useContext(AppContext);
   
-  // const [scroll, setScroll] = React.useState<DialogProps['scroll']>('paper');
   const descriptionElementRef = React.useRef<HTMLElement>(null);
   const { isOpen, actionType } = checklistDialog;
-  const [newChecklistItem, setNewChecklistItem] = React.useState<ChecklistItem | null>(null);
   const [checklistItemName, setChecklistItemName] = React.useState<string>('');
   const [checklistItemRemarks, setChecklistItemRemarks] = React.useState<string | null>('');
   const [checklistItemTags, setChecklistItemTags] = React.useState<string | null>('');
   const [checklistBgColor, setChecklistBgColor] = React.useState<Colors>(defaultColor);
+  const [isDialogErr, setIsDialogErr] = React.useState<boolean>(false);
   const [inputTag, setInputTag] = React.useState<string>('');
 
   const renderDialogTitle = () => {
@@ -58,34 +58,60 @@ export const CheckListItemDialog: React.FC = () => {
     }
   }
 
+  const clearValues = () => {
+    setChecklistItemName('');
+    setChecklistItemRemarks('');
+    setChecklistItemTags('');
+    setInputTag('');
+    setChecklistBgColor(defaultColor);
+    setIsDialogErr(false);
+  }
+
   const handleClose = () => {
     setChecklistDialog({isOpen: false, actionType: null, checklistItem: null, checklistLength: 0});
   }
 
+  const handleCallback = () => {
+    getAllChecklist();
+    handleClose();
+    showFeedbackMessage(actionType, FeedbackStatus.SUCCESS);
+  }
+  
   const handleSubmit = () => {
     // CALL UPDATE API HERE
+    const selectedItem = checklistDialog.checklistItem;
+    const payload = {
+      ...(checklistDialog.actionType === ActionTypes.EDIT) && {id: selectedItem?.id},
+      ...(checklistDialog.actionType === ActionTypes.ADD) && {priority: checklistDialog.checklistLength},
+      ...(checklistItemName !== selectedItem?.name) && {name: checklistItemName},
+      ...(checklistItemRemarks !== selectedItem?.remarks) && {remarks: checklistItemRemarks},
+      ...(checklistBgColor !== selectedItem?.backgroundColor) && {backgroundColor: checklistBgColor},
+      ...(checklistItemTags !== selectedItem?.tags) && {tags: checklistItemTags},
+    };
+
     if (checklistDialog.actionType === ActionTypes.ADD) {
-      const payload: ChecklistItem = {
-        priority: checklistDialog.checklistLength,
-        name: checklistItemName,
-        remarks: checklistItemRemarks,
-        backgroundColor: checklistBgColor,
-        tags: checklistItemTags
-      }
-      AddChecklistAPI(
+      callAPI({
+        apiEndpoint: APIs.ADD, 
+        loader: null, 
+        onSuccess: null,
+        onError: showFeedbackMessage,
+        callBack: handleCallback,
         payload,
-        () => {
-          handleClose();
-          showFeedbackMessage(ActionTypes.ADD, FeedbackStatus.SUCCESS)
-        },
-        () => {
-          handleClose();
-          showFeedbackMessage(ActionTypes.ADD, FeedbackStatus.ERROR)
-        },
-        () => getAllChecklist(),
-      );
+      });
+    } else {
+      if (payload.name || payload.remarks || payload.backgroundColor || payload.tags) {
+        callAPI({
+          apiEndpoint: APIs.UPDATE, 
+          loader: null, 
+          onSuccess: null,
+          onError: showFeedbackMessage,
+          callBack: handleCallback,
+          payload,
+        });
+      } else {
+        setIsDialogErr(true);
+      }
     }
-    showFeedbackMessage(checklistDialog.actionType, FeedbackStatus.SUCCESS);
   }
 
   const handleDialogBackdropClick: DialogProps["onClose"] = (event, reason) => {
@@ -93,22 +119,6 @@ export const CheckListItemDialog: React.FC = () => {
     if (reason && reason === "backdropClick") 
       return;
     handleClose();
-  }
-
-  const _renderDeleteConfirmationContent = () => {
-    return (
-      <React.Fragment>
-        <DialogContent>
-          <DialogContentText
-            id="scroll-dialog-description"
-            ref={descriptionElementRef}
-            tabIndex={-1}
-          >
-            <Typography variant='body1'>Are you sure you want to delete this checklist item?</Typography>
-          </DialogContentText>
-        </DialogContent>
-      </React.Fragment>
-    );
   }
 
   const removeTag = (tag: string) => {
@@ -136,7 +146,19 @@ export const CheckListItemDialog: React.FC = () => {
   const _renderChecklistItemContent = () => {
     return (
       <React.Fragment>
-        <div>
+        {isDialogErr && (
+          <div className='container-dialog-err'>
+            <div className='txt-dialog-err'>
+              <Typography variant='body1'>No updates committed</Typography>
+            </div>
+            <div className='btn-dialog-err-close'>
+              <IconButton onClick={() => setIsDialogErr(false)}>
+                <Close sx={{ color: '#fff' }}/>
+              </IconButton>
+            </div>
+          </div>
+        )}
+        <div className='container-miu-dialog-content'>
           <div className='container-checklist-dialog-row-1'>
             <div className='txt-checklist-name'>
               <TextField 
@@ -162,7 +184,14 @@ export const CheckListItemDialog: React.FC = () => {
                     >
                       {colors.map((color: string, index: number) => {
                           return (
-                            <MenuItem value={color} key={`${index}-${color}`} sx={{ display: 'block' }}>
+                            <MenuItem 
+                              defaultChecked={checklistBgColor as Colors === color} 
+                              value={color} 
+                              key={`${index}-${color}`} 
+                              sx={{ display: 'block', '&.MuiMenuItem-root.Mui-selected': {
+                                background: '#141414',
+                              }}}
+                            >
                               <div className='container-menu-item-color-picker'>
                                 <div className='div-menu-item-color-picker' style={{ background: color, width: '100%', color}}>-</div>
                               </div>
@@ -222,13 +251,29 @@ export const CheckListItemDialog: React.FC = () => {
     )
   }
 
+  const _renderDeleteConfirmationContent = () => {
+    return (
+      <React.Fragment>
+        <DialogContent>
+          <DialogContentText
+            id="scroll-dialog-description"
+            ref={descriptionElementRef}
+            tabIndex={-1}
+          >
+            <Typography variant='body1'>Are you sure you want to delete this checklist item?</Typography>
+          </DialogContentText>
+        </DialogContent>
+      </React.Fragment>
+    );
+  }
+
   const renderDialogContent = () => {
     if (actionType === ActionTypes.DELETE) {
       return _renderDeleteConfirmationContent();
     } else {
       return (
         <React.Fragment>
-          <DialogContent dividers>
+          <DialogContent dividers sx={{padding: 0}}>
             <DialogContentText
               id="scroll-dialog-description"
               ref={descriptionElementRef}
@@ -251,21 +296,20 @@ export const CheckListItemDialog: React.FC = () => {
     }
 
     if (checklistDialog.actionType === ActionTypes.ADD) {
-      setNewChecklistItem(null);
-      setChecklistItemName('');
-      setChecklistItemRemarks('');
-      setChecklistItemTags('');
-      setChecklistBgColor(defaultColor);
+      clearValues();
     }
 
     if(checklistDialog.actionType === ActionTypes.EDIT && checklistDialog.checklistItem) {
-      //ASSSIGN VALUES ON RENDER FOR UPDATING
-      setNewChecklistItem(checklistDialog.checklistItem);
       setChecklistItemName(checklistDialog.checklistItem.name);
       setChecklistItemRemarks(checklistDialog.checklistItem.remarks);
       setChecklistItemTags(checklistDialog.checklistItem.tags);
       setChecklistBgColor(checklistDialog.checklistItem.backgroundColor as Colors);
     }
+
+    return () => {
+      clearValues();
+    }
+    
   }, [isOpen, checklistDialog.actionType, checklistDialog.checklistItem]);
 
   return (

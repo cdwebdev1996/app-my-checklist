@@ -1,2 +1,2 @@
 export * from './AddChecklistAPI'
-export * from './GetChecklistAPI';
+export * from './ChecklistPresentationService';

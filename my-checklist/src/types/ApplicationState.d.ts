@@ -2,8 +2,7 @@
 
 
 import { ChecklistItem } from './Checklist.d';
-import { CheckListDialogActionEnum, CheckListDialogActionType, CheckListDialogInterface, ChecklistDialogState } from './ChecklistDialog.d';
-import { FeedbackStatusEnum } from './FeedbackMessages';
+import { CheckListDialogInterface } from './ChecklistDialog.d';
 import { ActionTypes } from './Middleware';
 import { Feedback } from './FeedbackMessages.d';
 

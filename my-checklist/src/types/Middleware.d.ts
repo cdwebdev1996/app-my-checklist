@@ -6,6 +6,13 @@ export enum HttpMethods {
   DELETE = 'DELETE',
 };
 
+export enum APIs {
+  GETALL = '/getAll',
+  ADD = '/add',
+  UPDATE = '/update',
+  DELETE = '/delete'
+}
+
 export enum ActionTypes {
   ADD,
   DELETE,

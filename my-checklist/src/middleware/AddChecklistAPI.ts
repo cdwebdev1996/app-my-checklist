@@ -19,13 +19,13 @@ export const AddChecklistAPI = (
     // add a buffer so to make the feedback appear smooth
     setTimeout(() => {
       onSuccess && onSuccess();
-    }, 800);
+    }, 500);
   })
   .catch(err => {
     // add a buffer so to make the feedback appear smooth
     setTimeout(() => {
       onError && onError()
-    }, 800);
+    }, 500);
   })
   .finally(() => {
     callBack && callBack();

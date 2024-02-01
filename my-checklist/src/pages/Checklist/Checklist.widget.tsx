@@ -72,11 +72,11 @@ export const Checklist: React.FC = () => {
             <AccordionDetails sx={{ padding: '8px 80px 16px' }}>
               {checklist.remarks}
               <Stack direction="row" spacing={1} sx={{ marginTop: '24px' }}>
-                {checklist.tags?.split(',').map((tag: string, index: number) => {
+                {checklist?.tags?.length ? checklist.tags?.split(',').map((tag: string, index: number) => {
                   return (
                     <Chip key={index} label={tag} color="primary" sx={{ margin: '0px 3px'}} />
                   )
-                })}
+                }) : null}
               </Stack>
             </AccordionDetails>
             <AccordionActions sx={{background: "#33485D"}}>
