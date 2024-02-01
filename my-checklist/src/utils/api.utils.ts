@@ -6,8 +6,8 @@ import { APIs, ActionTypes, AddOrUpdateRequestBody, ChecklistItem, FeedbackStatu
 interface apiParams {
   apiEndpoint: APIs;
   loader: null | React.Dispatch<React.SetStateAction<boolean>>;
-  onSuccess: null | React.Dispatch<React.SetStateAction<ChecklistItem[]>>;
-  onError: null | ((actionType: ActionTypes, status: FeedbackStatus) => void);
+  onSuccess: null | VoidFunctionCallback;
+  onError: null | VoidFunctionCallback;
   callBack?: null | VoidFunctionCallback; // callback is optional
   payload?: null | AddOrUpdateRequestBody; // payload is optional
 }

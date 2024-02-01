@@ -131,9 +131,9 @@ export const CheckListItemDialog: React.FC = () => {
     var tags = checklistItemTags;
     if (inputTag) {
       if (tags) {
-        setChecklistItemTags(tags?.concat(`,${inputTag}`));
+        setChecklistItemTags(tags?.concat(`,${inputTag.toLowerCase()}`));
       } else {
-        setChecklistItemTags(inputTag)
+        setChecklistItemTags(inputTag.toLowerCase())
       }
     }
     setInputTag('');

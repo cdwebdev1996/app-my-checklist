@@ -19,10 +19,12 @@ import './App.css';
 export const App = () => {
 
   const [checklistData, setChecklistData] = React.useState<Array<ChecklistItem>>([]);
+  const [cachedData, setCachedData] = React.useState<Array<ChecklistItem>>([]);
   const [checklistDialog, setChecklistDialog] = React.useState<CheckListDialogInterface>({ isOpen: false, actionType: null, checklistItem : null, checklistLength: 0 });
   const [feedback, setFeedback] = React.useState<Feedback>({ action: null, status: null });
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
   const [isFeedbackMessageShown, setIsFeedbackMessageShown] = React.useState<boolean>(false);
+  const [isFiltering, setIsFiltering] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const showFeedbackMessage = React.useCallback((action: ActionTypes, status: FeedbackStatus) => {
     setFeedback({
@@ -32,21 +34,30 @@ export const App = () => {
     setIsFeedbackMessageShown(true);
   }, []);
 
+  const handleOnSuccess = (data: ChecklistItem[]) => {
+    setChecklistData(data);
+    setCachedData(data);
+  }
+
   const getAllChecklist = React.useCallback(() => {
-    callAPI({apiEndpoint: APIs.GETALL, loader: setIsLoading, onSuccess: setChecklistData, onError: showFeedbackMessage});
-  }, [setChecklistData, showFeedbackMessage]);
+    callAPI({apiEndpoint: APIs.GETALL, loader: setIsLoading, onSuccess: handleOnSuccess, onError: showFeedbackMessage});
+  }, [showFeedbackMessage]);
 
   const applicationState: ApplicationState = {
+    cachedData,
     checklistData,
     checklistDialog,
     feedback,
-    isLoading,
     isFeedbackMessageShown,
+    isFiltering,
+    isLoading,
     getAllChecklist,
+    setCachedData,
     setChecklistData,
     setChecklistDialog,
     setFeedback,
     setIsFeedbackMessageShown,
+    setIsFiltering,
     setIsLoading,
     showFeedbackMessage,
   }
