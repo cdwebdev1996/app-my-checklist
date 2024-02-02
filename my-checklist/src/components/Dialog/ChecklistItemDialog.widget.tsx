@@ -24,9 +24,33 @@ import {
   Colors,
   FeedbackStatus,
 } from '../../types';
-import { callAPI, colors, defaultColor } from '../../utils';
+import { callAPI } from '../../utils';
 import './ChecklistItemDialog.css';
 import { AppContext } from '../../context';
+
+export const defaultColor = '#95A5A6';
+export const colorPool = [
+  '#C0392B',
+  '#E74C3C',
+  '#9B59B6',
+  '#8E44AD',
+  '#2980B9',
+  '#3498DB',
+  '#1ABC9C',
+  '#16A085',
+  '#27AE60',
+  '#2ECC71',
+  '#F1C40F',
+  '#F39C12',
+  '#E67E22',
+  '#D35400',
+  '#ECF0F1',
+  '#BDC3C7',
+  '#95A5A6',
+  '#7F8C8D',
+  '#34495E',
+  '#2C3E50',
+];
 
 export const CheckListItemDialog: React.FC = () => {
   const {
@@ -81,7 +105,7 @@ export const CheckListItemDialog: React.FC = () => {
     // CALL UPDATE API HERE
     const selectedItem = checklistDialog.checklistItem;
     const payload = {
-      ...(checklistDialog.actionType === ActionTypes.EDIT) && {id: selectedItem?.id},
+      ...(checklistDialog.actionType === ActionTypes.EDIT || checklistDialog.actionType === ActionTypes.DELETE) && {id: selectedItem?.id},
       ...(checklistDialog.actionType === ActionTypes.ADD) && {priority: checklistDialog.checklistLength},
       ...(checklistItemName !== selectedItem?.name) && {name: checklistItemName},
       ...(checklistItemRemarks !== selectedItem?.remarks) && {remarks: checklistItemRemarks},
@@ -98,7 +122,7 @@ export const CheckListItemDialog: React.FC = () => {
         callBack: handleCallback,
         payload,
       });
-    } else {
+    } else if (checklistDialog.actionType === ActionTypes.EDIT) {
       if (payload.name || payload.remarks || payload.backgroundColor || payload.tags) {
         callAPI({
           apiEndpoint: APIs.UPDATE, 
@@ -111,6 +135,15 @@ export const CheckListItemDialog: React.FC = () => {
       } else {
         setIsDialogErr(true);
       }
+    } else if (checklistDialog.actionType === ActionTypes.DELETE) {
+      callAPI({
+        apiEndpoint: APIs.DELETE, 
+        loader: null, 
+        onSuccess: null,
+        onError: showFeedbackMessage,
+        callBack: handleCallback,
+        payload: {id: selectedItem?.id},
+      });
     }
   }
 
@@ -182,7 +215,7 @@ export const CheckListItemDialog: React.FC = () => {
                       onChange={handleChange}
                       size='small'
                     >
-                      {colors.map((color: string, index: number) => {
+                      {colorPool.map((color: string, index: number) => {
                           return (
                             <MenuItem 
                               defaultChecked={checklistBgColor as Colors === color} 
@@ -225,7 +258,7 @@ export const CheckListItemDialog: React.FC = () => {
                 onChange={e => setInputTag(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' ? addTag() : null}
                 value={inputTag}
-                helperText='Press enter to add tag'
+                helperText={`Press 'enter' or click the 'add tag' button to add a new tag`}
                 fullWidth
               />
             </div>
@@ -233,7 +266,7 @@ export const CheckListItemDialog: React.FC = () => {
               <Button size="medium" variant='contained' onClick={addTag}>Add tag</Button>
             </div>
           </div>
-          {checklistItemTags && (
+          {checklistItemTags ? (
             <div className='container-checklist-tag-list'>
               <div className='container-checklist-tag-list-box'>
                 <Stack direction="row" spacing={1}>
@@ -243,6 +276,14 @@ export const CheckListItemDialog: React.FC = () => {
                     );
                   })}
                 </Stack>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className='container-checklist-tag-list'>
+                <div className='container-checklist-tag-list-box tag-caption-centered '>
+                  <Typography variant='caption'>No tag added</Typography>
+                </div>
               </div>
             </div>
           )}

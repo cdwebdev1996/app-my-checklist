@@ -8,14 +8,20 @@ export enum FeedbackMessages {
   ERROR_DELETE ='Checklist item removal failed.',
   ERROR_UPDATE ='Checklist item modification failed.',
   ERROR_GET_DATA ='Cannot fetch data from the server.',
+  ERR_NETWORK = 'Cannot connect to the server. Please check connection.',
 };
 
 export enum FeedbackStatus {
   SUCCESS =  'success',
   ERROR = 'error',
-}
+};
 
 export interface Feedback {
   action: ActionTypes | null;
   status: FeedbackStatus | null;
-}
+  customMessage?: string | null;
+};
+
+export enum ErrorCodes {
+  ERR_NETWORK='ERR_NETWORK',
+};

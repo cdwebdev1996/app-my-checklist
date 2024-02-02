@@ -58,6 +58,7 @@
   padding: 0px 4px;
 }
 
+
 .container-checklist-tag-list {
   display: flex;
   margin-bottom: 12px;
@@ -69,5 +70,11 @@
   border: solid 1px #CACFD2;
   border-radius: 4px;
   padding: 8px
+}
+
+.tag-caption-centered {
+  display: flex;
+  justify-content: center !important;
+  padding: 4%;
 }
 

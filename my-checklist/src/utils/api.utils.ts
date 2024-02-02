@@ -1,13 +1,13 @@
 
 
 import { ChecklistPresentationService } from '../middleware';
-import { APIs, ActionTypes, AddOrUpdateRequestBody, ChecklistItem, FeedbackStatus, HttpMethods, VoidFunctionCallback } from '../types';
+import { APIs, ActionTypes, AddOrUpdateRequestBody, ChecklistItem, ErrorCodes, FeedbackStatus, HttpMethods, VoidFunctionCallback } from '../types';
 
 interface apiParams {
   apiEndpoint: APIs;
   loader: null | React.Dispatch<React.SetStateAction<boolean>>;
   onSuccess: null | VoidFunctionCallback;
-  onError: null | VoidFunctionCallback;
+  onError: null | ((actionType: ActionTypes, status: FeedbackStatus, code: ErrorCodes) => void);
   callBack?: null | VoidFunctionCallback; // callback is optional
   payload?: null | AddOrUpdateRequestBody; // payload is optional
 }
@@ -54,7 +54,7 @@ export const callAPI: callApiInterface = ({
     getHttpMethodByEndpoint(apiEndpoint) as HttpMethods,
     loader,
     (data) => onSuccess && onSuccess(data as ChecklistItem[]),
-    () => onError && onError(actionType, FeedbackStatus.ERROR),
+    (err) => onError && onError(actionType, FeedbackStatus.ERROR, err.code),
     callBack,
     payload,
   );
