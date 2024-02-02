@@ -4,7 +4,7 @@
 import { ChecklistItem } from './Checklist.d';
 import { CheckListDialogInterface } from './ChecklistDialog.d';
 import { ActionTypes } from './Middleware';
-import { Feedback } from './FeedbackMessages.d';
+import { ErrorCodes, Feedback } from './FeedbackMessages.d';
 
 export type VoidFunctionCallback = (...prop?: any) => void;
 
@@ -16,6 +16,7 @@ export interface ApplicationState {
   isFeedbackMessageShown: boolean;
   isFiltering: boolean;
   isLoading: boolean;
+  responseErrorCodes: ErrorCodes | null;
   getAllChecklist: VoidFunctionCallback;
   setCachedData: React.Dispatch<React.SetStateAction<ChecklistItem[]>>;
   setChecklistData: React.Dispatch<React.SetStateAction<ChecklistItem[]>>;

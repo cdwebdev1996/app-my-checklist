@@ -33,10 +33,10 @@ export const Checklist: React.FC = () => {
     setChecklistDialog({isOpen: true, actionType: ActionTypes.EDIT, checklistItem, checklistLength: checklistData.length});
   }
 
-  const handleDeleteChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>) => {
+  const handleDeleteChecklistMenuItem = (event: React.SyntheticEvent<Element | Event>, checklistItem: ChecklistItem) => {
     // OPENS CHECKLIST DIALOG (CONFIRMATION FOR DELETION)
     event.stopPropagation();
-    setChecklistDialog({isOpen: true, actionType: ActionTypes.DELETE, checklistItem: null, checklistLength: checklistData.length});
+    setChecklistDialog({isOpen: true, actionType: ActionTypes.DELETE, checklistItem, checklistLength: checklistData.length});
   }
   
   return (
@@ -62,7 +62,7 @@ export const Checklist: React.FC = () => {
                     <IconButton onClick={(event) => handleEditChecklistMenuItem(event, checklist)}>
                       <Edit />
                     </IconButton>
-                    <IconButton onClick={handleDeleteChecklistMenuItem}>
+                    <IconButton onClick={(event) => handleDeleteChecklistMenuItem(event, checklist)}>
                       <Delete />
                     </IconButton>
                   </Box>
@@ -81,7 +81,7 @@ export const Checklist: React.FC = () => {
             </AccordionDetails>
             <AccordionActions sx={{background: "#33485D"}}>
               <Button variant='contained' sx={{ background: '#19C0A4' }} onClick={(event) => handleEditChecklistMenuItem(event, checklist)}>UPDATE</Button>
-              <Button variant='contained' sx={{ background: '#D37D7D' }} onClick={handleDeleteChecklistMenuItem}>DELETE</Button>
+              <Button variant='contained' sx={{ background: '#D37D7D' }} onClick={(event) => handleDeleteChecklistMenuItem(event, checklist)}>DELETE</Button>
             </AccordionActions>
           </Accordion>
         );

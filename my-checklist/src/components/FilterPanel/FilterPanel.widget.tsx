@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { AddCircle, Search } from '@mui/icons-material';
+import { AddCircle, RestartAlt } from '@mui/icons-material';
 import { 
   Button,
   Card,
   Checkbox,
   Divider,
   FormControl,
-  IconButton,
   InputLabel,
   ListItemText,
   MenuItem,
@@ -16,6 +15,7 @@ import {
   Typography,
   TextField,
   OutlinedInput,
+  IconButton,
 } from '@mui/material';
 import { Box, Stack } from '@mui/system';
 import { AppContext } from '../../context';
@@ -35,7 +35,7 @@ const MenuProps = {
 
 export const FilterPanel: React.FC = () => {
 
-  const { cachedData, checklistData, isLoading, setCachedData, setIsFiltering, setChecklistDialog } = React.useContext(AppContext);
+  const { cachedData, checklistData, isLoading, responseErrorCodes, setCachedData, setIsFiltering, setChecklistDialog } = React.useContext(AppContext);
   const [ tagCollection, setTagCollection ] = React.useState<Array<string>>([]);
   const [ selectedTags, setSelectedTags ] = React.useState<Array<string>>([]);
   const [ textSearch, setTextSearch] = React.useState<string>('');
@@ -46,7 +46,6 @@ export const FilterPanel: React.FC = () => {
   }
 
   const captureDataAfterInitialFilter = () => {
-    console.log('initial filter done with data', cachedData);
     // this will capture the most recent data after the first filter
     setCachedFilterData(cachedData);
   }
@@ -124,6 +123,14 @@ export const FilterPanel: React.FC = () => {
     setChecklistDialog({isOpen: true, actionType: ActionTypes.ADD, checklistItem: null, checklistLength: checklistData.length});
   }
 
+  const resetFilter = () => {
+    setCachedData(checklistData);
+    setCachedFilterData([]);
+    setTextSearch('');
+    setSelectedTags([]);
+    setIsFiltering(false);
+  }
+
   React.useEffect(() => {
     const unFilteredTags = checklistData.map(data => data.tags).join(',').split(',');
     const filteredTags = unFilteredTags.filter((data, index) => unFilteredTags.indexOf(data) === index);
@@ -176,26 +183,28 @@ export const FilterPanel: React.FC = () => {
                 ))}
               </Select>
             </FormControl>
-            {/* <FormControl sx={{margin: '0px 3px'}}>
-              <IconButton aria-label="delete" size="medium" sx={{border: "solid 1px #CACFD2", borderRadius: '4px', height: '40px'}}>
-                <Search fontSize="inherit" />
+            <FormControl sx={{margin: '0px 3px'}}>
+              <IconButton aria-label="delete" size="medium" sx={{border: "solid 1px #CACFD2", borderRadius: '4px', height: '40px'}} onClick={resetFilter}>
+                <RestartAlt fontSize="inherit" />
               </IconButton>
-            </FormControl> */}
+            </FormControl>
           </Box>
         </Card>
       </div>
-      <div className="container-checklist-action-overview">
-        <div className='txt-checklist-count'>
-          {isLoading ? (
-            <Skeleton variant="rectangular" width={175} height={32} />
-          ) : <Typography variant='h6'>{`Today's tasks: (${checklistData.length || 0})`}</Typography>}
+      {!responseErrorCodes && (
+        <div className="container-checklist-action-overview">
+          <div className='txt-checklist-count'>
+            {isLoading ? (
+              <Skeleton variant="rectangular" width={175} height={32} />
+            ) : <Typography variant='h6'>{`Today's tasks: (${checklistData.length || 0})`}</Typography>}
+          </div>
+          <div className='btn-checklist-add'>
+            <Button component="label" size='small' variant="contained" startIcon={<AddCircle />} onClick={handleAddChecklistItem}>
+              Add item
+            </Button>
+          </div>
         </div>
-        <div className='btn-checklist-add'>
-          <Button component="label" size='small' variant="contained" startIcon={<AddCircle />} onClick={handleAddChecklistItem}>
-            Add item
-          </Button>
-        </div>
-      </div>
+      )}
     </React.Fragment>
   )
 }

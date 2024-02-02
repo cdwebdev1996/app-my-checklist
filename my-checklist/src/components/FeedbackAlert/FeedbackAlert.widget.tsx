@@ -6,8 +6,12 @@ import { FeedbackStatus, FeedbackMessages, ActionTypes } from '../../types'
 export const FeedbackAlert = () => {
   const { feedback, isFeedbackMessageShown, setIsFeedbackMessageShown, } = React.useContext(AppContext);
 
-  const renderFeedbackMessage = () => {
+  const renderFeedbackMessage = React.useCallback(() => {
     const { action, status } = feedback;
+    if (feedback.customMessage) {
+      return feedback.customMessage;
+    };
+
     switch(action) {
       case ActionTypes.ADD:
        return status && status === FeedbackStatus.SUCCESS
@@ -19,17 +23,20 @@ export const FeedbackAlert = () => {
         return status === FeedbackStatus.SUCCESS
           ? FeedbackMessages.SUCCESS_UPDATE : FeedbackMessages.ERROR_UPDATE;
       case ActionTypes.GET:
-        return status === FeedbackStatus.ERROR ? FeedbackMessages.ERROR_GET_DATA : null;
+        return status === FeedbackStatus.ERROR
+          ? feedback.customMessage || FeedbackMessages.ERROR_GET_DATA
+          : null;
       default:
         return 'Unknown Error';
     }
-  }
+  }, [feedback]);
 
   React.useEffect(() => {
     isFeedbackMessageShown && setTimeout(() => {
       // automatically hide feedback message three (3) seconds after rendering
       setIsFeedbackMessageShown(false);
     }, 3800);
+
   }, [ isFeedbackMessageShown, setIsFeedbackMessageShown]);
 
   return (

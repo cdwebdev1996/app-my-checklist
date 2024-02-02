@@ -3,7 +3,7 @@ import axios from 'axios';
 import { APIs, AddOrUpdateRequestBody, ChecklistItem, HttpMethods, VoidFunctionCallback } from '../types';
 import { API_CONTEXT } from '../config'; 
 
-const handleURL = (endpoint: APIs) => {
+const generateURL = (endpoint: APIs) => {
   return `${API_CONTEXT}${endpoint}`;
 }
 
@@ -19,7 +19,7 @@ export const ChecklistPresentationService = (
     setLoader && setLoader(true);
     axios({
         method: method,
-        url: handleURL(endpoint),
+        url: generateURL(endpoint),
         data: payload,
     })
     .then(response => {
@@ -30,7 +30,9 @@ export const ChecklistPresentationService = (
     })
     .finally(() => {
       callBack && callBack();
-      setLoader && setLoader(false);
+      setTimeout(() => {
+        setLoader && setLoader(false);
+      }, 300);
     });
 }
 
